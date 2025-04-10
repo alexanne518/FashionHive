@@ -1,0 +1,1 @@
+<!--where the user can search my cateogry color or by simiplar words from the description of the clothing item-->

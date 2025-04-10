@@ -1,0 +1,77 @@
+
+
+body {
+	margin-left: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+}
+
+.container {
+    width: 80%; /* Adjust width as needed */
+    max-width: 900px; /* Prevent it from getting too wide */
+    margin: 20px auto; /* Centers the div horizontally */
+    padding: 20px;
+    /*border: 1px solid #ccc; idk what border color i want */
+    border-radius: 10px; /* Optional: Rounds corners */
+    /*background-color: #f9f9f9; idk what color i want*/
+}
+
+.navbar {
+    background-color: #f8f9fa;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: center; /* Centers everything */
+    align-items: center;
+    gap: 20px; /* Adds space between elements */
+}
+
+.navbar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+/* Each nav item */
+.nav-item {
+    margin: 0 15px;
+}
+
+/* Nav links */
+.nav-link {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    padding: 8px 12px;
+}
+
+/* Hover effect */
+.nav-link:hover {
+    background-color: #ddd;
+    border-radius: 5px;
+}
+
+
+/*image effect*/
+.fashion-image {
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    width: 200px;
+    height: auto;
+    margin: 10px;
+}
+.fashion-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    cursor: pointer;
+}
+.fashion-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 15px; /* Adds space between rows */
+}
+.fashion-table td {
+    padding: 10px;
+    vertical-align: top;
+}
