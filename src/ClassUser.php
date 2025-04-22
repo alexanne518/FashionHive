@@ -16,6 +16,7 @@ Class User{
     }
 
     private static function InitializeDatabase(){
+
 		global $DatabaseName;
 		
 		if(!isset(self::$database)){ //self because the variable dtabase is static
@@ -27,10 +28,10 @@ Class User{
     //crate salt function
     public static function CreateSalt($password){
         $passMD5 = MD5($password); //genarates a 32-character hash, example: alex = 534b44a19bf18d20b71ecc4eb77c572f
-        echo "MD5: ".$passMD5;
+        //echo "MD5: ".$passMD5;
 
         $passSubStr = Substr($passMD5, 0, 22); // extracting from 0 (the start), and we end when we have 22 chars
-        echo "<br> pass with substr: ".$passSubStr;
+        //echo "<br> pass with substr: ".$passSubStr;
 
         $beginning = array("$2a$", "$2x$", "$2y$"); //diffrent algorythems for blue fish has diffrent starts
         $index = rand(0,2); //used to randomly generate the index that will be used to chose which index we will get fron the array
@@ -40,7 +41,7 @@ Class User{
 
         $salt = $hash.$numbLoops."$".$passSubStr."$"; //putting everything together to create the salt
 
-        echo"<br> salt: ".$salt;
+        //echo"<br> salt: ".$salt;
         return $salt;
     }
 
@@ -88,22 +89,61 @@ Class User{
         }
     } 
     
+    //get value, like ocntains but i actually return the value
+    public static function ReadValueFrom($table, $column){
+        self::InitializeDatabase();
 
+        try {
+            $query = "SELECT $column FROM $table";
+            $connection = self::$database->GetConnection();
+            $stmt = $connection->prepare($query);
+            $stmt->execute();
+            
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                        
+            return $row[$column];
+            
+        } catch(PDOException $exception) {
+            echo "Query Failed: ".$exception->getMessage();
+            return array(); // Return empty array on failure
+        }
+    }
+
+    public static function GetUSerId($column, $username){
+        try{
+            $query = "SELECT * FROM User WHERE Username = ?";
+
+            self::InitializeDatabase();
+            $connection = self::$database->GetConnection();
+
+            $stmt = $connection->prepare($query);
+            $stmt-> bindParam(1, $username); //bind user name to put it into the select
+            $stmt->execute();
+
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return $row[$column]; //reutnr the value of the column
+
+        }catch(PDOException $exception){
+
+			echo "Query Failed: ".$exception->getMessage();
+        }
+    }
     //save new user
     public function Save(){
         try{
             $query = "INSERT INTO User (Username, Password, Salt) VALUES (?, ?, ?)";
 
             $salt = self::CreateSalt($this->Password);
-            $encrypted_Password = crypt($this->Password, $salt);
+            $encrypted_Password = crypt($this->Password, $salt); //problem with the crypt or the salt returns 0*
 
             self::InitializeDatabase();
             $connection = self::$database->GetConnection();
-            echo "Attempting to save user:<br>";
+           /* echo "Attempting to save user:<br>";
             echo "Username: " . $this->Username."<br>";
             echo "Password: " . $this->Password."<br>";
-            echo "Generated Hash: " . $encrypted_Password."<br>";
-
+            echo "encripted pass: " . $encrypted_Password."<br>";
+*/
             $stmt = $connection->prepare($query);
             $stmt->bindParam(1, $this->Username);
             $stmt->bindParam(2, $encrypted_Password); //never actually save the clear password
@@ -120,7 +160,6 @@ Class User{
         }
     }
 
-    //get value
 
     public static function Login($username, $password){ 
         

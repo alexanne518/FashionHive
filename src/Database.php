@@ -12,7 +12,7 @@ class DatabasePDO{
 		
         $this->OpenConnection($dbName);
 		if(!empty($this->connection)){
-			echo "You are connected !";
+			//echo "You are connected !";
 		}
 	}
 	

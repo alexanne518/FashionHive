@@ -1,6 +1,6 @@
 <?php include "includes/Header.php"?>
 <?php include "includes/Menu.php"?>
-<?php include "src/ClassCloset.php"?>
+<?php include "../src/ClassCloset.php"?>
 
 <body>
     
@@ -12,15 +12,15 @@
     </div>
 
     <div class="container">
-        <h2>All Closet Items</h2> <!--sytle this to make it look good-->
-        <?php 
+    <h2>All Closet Items</h2> <!--sytle this to make it look good-->
+    <?php 
+    
+        //i want to print the array here
+        // Get all closet items (you can add filters here if needed)
+        $items = Closet::ReadClosetItems();
+        Closet::DisplayOnlyImages($items);
         
-            //i want to print the array here
-            // Get all closet items (you can add filters here if needed)
-            $items = Closet::ReadClosetItems();
-            Closet::DisplayOnlyImages($items);
-            
-        ?>
+    ?>
     </div>
 
 
