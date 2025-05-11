@@ -1,12 +1,18 @@
+<?php include "sessionTimeout.php" ?>
 <?php include "includes/Header.php"?>
 <?php include "includes/Menu.php"?>
 <?php include "../src/ClassCloset.php"?>
-
+<head>
+    <style>
+        body{
+            background-image: url("images/backGround/longLace.jpg"); /*lave image*/
+            background-repeat: repeat-y;
+        }
+    </style>
+</head>
 <body>
-    
-
-    <!-- Home Page -->
-    <div class="container"> <!--regulare css-->
+<div style="width: 80%; margin-left: auto; margin-right: 0;">
+    <div class="container"> 
         <h1>Welcome to the Fashion App</h1>
         <p>Upload clothing items, save favorites, and rate others!</p>
     </div>
@@ -22,8 +28,7 @@
         
     ?>
     </div>
-
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

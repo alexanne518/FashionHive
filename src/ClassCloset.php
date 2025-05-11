@@ -1,6 +1,7 @@
 <?php 
 include_once "Database.php";
 include "includes/header.php";
+include "ClassSubmits.php";
 
 
 Class Closet{
@@ -85,16 +86,34 @@ Class Closet{
         }catch(PDOException $exception){
 			echo "Query Failed: ".$exception->getMessage();
 		}
-
     }
 
+
+    public static function getItem($item_Id){
+        $query = "SELECT * FROM closet_Item WHERE Item_Id  = ?";
+
+        try{
+            self::InitializeDatabase();
+            $connection = self::$database->GetConnection();
+
+            $stmt = $connection->prepare($query);
+            $stmt->bindParam(1, $item_Id);
+			$stmt->execute();
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			
+			//print_r($result[0]);
+						
+			return $result[0];
+			
+		}catch(PDOException $exception){
+			echo "Query Failed: ".$exception->getMessage();
+		}
+    }
 
     //try to just call themfrom the database using orderby itemId Desc based on how much they appear
     public static function OrderFromDescLikeCount($table, $column){
         try{ //getting the count andd sorting they in decreasing order
-            $query = "SELECT Item_Id, COUNT(*) AS like_count
-             FROM $table GROUP BY Item_Id";
-              //ORDER BY like_count DESC";
+            $query = "SELECT Item_Id, COUNT(*) AS like_countFROM $table GROUP BY Item_Id"; //ORDER BY like_count DESC";
         
             self::InitializeDatabase();
             $connection = self::$database->GetConnection();
@@ -110,14 +129,10 @@ Class Closet{
 		}
     }
 
-    public static function GetAllItemsWithLikes() {
-        try {
+    public static function GetAllItemsWithLikes() { //i dont think i ven use this function
+        try { //get likes fron count of likes, have to coonect all the table, left join keeps the rows that dont have likes
             $query = "SELECT 
-                        ci.*, 
-                        COUNT(l.Item_Id) as like_count,
-                        cat.Name as category_name,
-                        s.Size as size_name,
-                        col.Color as color_name
+                        ci.*, COUNT(l.Item_Id) as like_count, cat.Name as category_name, s.Size as size_name,col.Color as color_name
                       FROM closet_item ci
                       LEFT JOIN likes l ON ci.Item_Id = l.Item_Id
                       LEFT JOIN category cat ON ci.Category_Id = cat.Category_Id
@@ -139,11 +154,73 @@ Class Closet{
         }
     }
 
+    public static function GetLikeCount($Item_Id){ //geting like count for only one item
+        try{ 
+            $query = "SELECT Item_Id, COUNT(*) AS like_count FROM likes WHERE Item_Id = $Item_Id";
+            
+            self::InitializeDatabase();
+            $connection = self::$database->GetConnection();
+            $stmt = $connection->prepare($query);
+            $stmt->execute();
+                
+
+            $result = $stmt->fetch(PDO::FETCH_ASSOC); //not fetch all becuase i dont want it to give me an array in an array, just the one array,,
+
+            if ($result) { //dont wanna return an empty array
+                return (int)$result['like_count']; // Return just the count as an integer
+            }
+            
+            return 0; //return 0 if the array is empty
+
+        }catch(PDOException $exception){
+			echo "Query Failed: ".$exception->getMessage();
+		}
+    }
+
+    public static function ReadFavItems($userId){
+        try{
+            $query  = "SELECT * FROM favortie_list , closet_item";
+			$query .=" WHERE favortie_list.User_Id = ? AND favortie_list.Item_Id = closet_item.Item_Id ";
+			self::InitializeDatabase();
+			$connection = self::$database->GetConnection();
+			$stmt = $connection->prepare($query);
+			$stmt->bindParam(1, $userId);
+			$stmt->execute();
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			
+			return $result;
+        }catch(PDOException $exception){
+			echo "Query Failed: ".$exception->getMessage();
+		}
+    }
+
+    public static function SearchByDescription($Item_Id){
+        $query = "SELECT * FROM closet_Item WHERE Description LIKE '%{$Item_Id}%' ";
+
+        try{
+            self::InitializeDatabase();
+            $connection = self::$database->GetConnection();
+
+            $stmt = $connection->prepare($query);
+			$stmt->execute();
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			
+			//print_r($result);
+						
+			return $result;
+			
+		}catch(PDOException $exception){
+			echo "Query Failed: ".$exception->getMessage();
+		}
+    }
+
+
+
     //sortin all the chlotes from lowest to highest liked
-   /* public static function SortLowestToHighest($array){
+    /* public static function SortLowestToHighest($array){
         usort($array, "self::CompareLikesDecreasing");
     }
-*/
+    */
     /*TODO 
     public static function CompareLikesDecreasing($array1, $array2){
         if($array1[""] == $array2[""]){ //the values gonna be likes or count likes or somthing i have to get the amount of likes before i finish this one
@@ -178,6 +255,7 @@ Class Closet{
     }
 
     public static function DisplayCloset($array) {
+        //print_r($array);
         echo '<div class="container">'; 
         echo '<div class="row">'; // Starting the bottstrap row so i can have the side by side look
         
@@ -187,10 +265,12 @@ Class Closet{
             $colorName = self::GetFKData("color", "Color_Id", $value["Color_Id"], "Color");
 
             $likeCount = isset($value['like_count']) ? $value['like_count'] : 0; //getting the number if there no like count wel just put 0;
+            $itemId = $value["Item_Id"];
 
 
             // Each item in its own column 4 per row since 3 fits into 12 4 times so we can fit that manny cars
             echo '<div class="col-md-3 mb-4">';  //can 4 at the bottem so they dont stick to each other
+            echo '<a href="itemDetails.php?id=' . $itemId . '" style="text-decoration: none; color: inherit;">';
                 echo '<div class="border p-3" style="border-radius: 15px;">'; //padding 3, curved edges 
                 echo '<img style="border-radius: 15px;" src="./images/'.$value["Item_Image"].'" height="auto" width="100%">';
                     echo '<h5>'.$categoryName.'</h5>'; //gonna use Category as title
@@ -207,19 +287,107 @@ Class Closet{
         echo '</div>'; // Close container
     }
 
+    public static function DisplayClosetAll($item, $userId = null) {
+        
+        $categoryName = self::GetFKData("category", "Category_Id", $item["Category_Id"], "Name");
+        $sizeName = self::GetFKData("size", "Size_Id", $item["Size_Id"], "Size");
+        $colorName = self::GetFKData("color", "Color_Id", $item["Color_Id"], "Color");
+        
+        $likeCount = isset($item['like_count']) ? $aritemray['like_count'] : 0; //getting the number if there no like count wel just put 0;
+
+
+        echo '<div class="container">'; 
+        echo '<div class="row">'; // Starting the bottstrap row so i can have the side by side look
+        
+            echo '<div class="col-md-3 mb-6">';
+            echo '<div class="border p-3" style="border-radius: 15px;">';
+
+            echo "<div class='row'>";
+            // Each item in its own column 4 per row since 3 fits into 12 4 times so we can fit that manny cars
+            echo '<div class="col-sm-92">';
+            echo '<img style="border-radius: 15px;" src="./images/'.$item["Item_Image"].'" height="auto" width="100%">';
+            echo '</div>';
+
+            
+            echo '<div class="col-sm-1">';
+            if(!empty($userId)) {
+                $isLiked = Submits::IsLiked($userId, $item["Item_Id"]);
+                //Submits::DisplayForm($isLiked, $likeCount);
+                Submits::DisplayForm($isLiked, $item["Item_Id"]);
+
+            }
+            
+            echo '</div>';
+
+            echo '<div class="card-footer">';
+             echo '<div class="row">';
+            
+            echo '<div class="col-sm-12">';
+                echo '<h5>'.$categoryName.'</h5>';
+                echo '<div class="mt-2">';
+                    echo '<strong>Size:</strong> '.$sizeName.'<br>';
+                    echo '<strong>Color:</strong> '.$colorName.'<br>';
+                    echo '<strong>Description:</strong> '.$item["Description"].'<br>';
+                echo '</div>';
+            echo '</div>';
+            
+            echo '</div>'; 
+            
+            echo '</div>'; 
+            echo '</div>';
+            echo '</div>'; 
+            echo '</div>';
+
+
+            echo '</div>'; 
+
+            echo '</div>';
+    }
+
+
 
     public static function DisplayOnlyImages($items){ //idk if i should name it items but wtv
         
-        echo '<div class="fashion-container">'; // Container for grid layout
-        foreach ($items as $item) {
-            echo '<div class="fashion-item">';
-            //echo '<a href="product_details.php?id=' . $item['Product_Id'] . '">'; // Link to details page
-            echo '<img class="fashion-image" src="./images/'.$item["Item_Image"].'" height="auto" width="200">';
-            //echo '</a>';
+        if(!empty($items)){
+            echo '<div class="fashion-container">'; // Container for grid layout
+            foreach ($items as $item) {
+                echo '<div class="fashion-item">';
+                echo '<a href="itemDetails.php? id=' . $item['Item_Id'] . '">';
+                echo '<img class="fashion-image" src="./images/'.$item["Item_Image"].'" height="auto" width="200">';
+                echo '</a>';
+                echo '</div>';
+            }
             echo '</div>';
         }
-        echo '</div>';
+        else{
+            echo "<h2>No Items in your favorites list yet, go back to add some items you like.</h2>";
+        }
 
+    }
+
+
+    public static function DisplayComments($Item_Id) {
+        $comments = self::GetCommentsForItem($Item_Id);
+    
+        echo '<div class="container">'; 
+        echo '<div class="row">';
+    
+        foreach($comments as $comment) {
+     
+            $username = self::GetFKData("user", "User_Id", $comment['User_ID'], "username");
+    
+            echo '<div class="col-md-12 mb-3">';
+            echo '  <div class="card">';
+            echo '    <div class="card-body">';
+            echo '      <h5 class="card-title">' . htmlspecialchars($username) . '</h5>';
+            echo '      <p class="card-text">' . htmlspecialchars($comment['Comment']) . '</p>';
+            echo '    </div>';
+            echo '  </div>';
+            echo '</div>';
+        }
+    
+        echo '</div>'; // Close row
+        echo '</div>'; // Close container
     }
 
     //read colums to get the cateogrys for the drop down
@@ -245,6 +413,22 @@ Class Closet{
             echo "Query Failed: ".$exception->getMessage();
             return array(); // Return empty array on failure
         }
+    }
+
+    public static function GetCommentsForItem($Item_Id){
+        self::InitializeDatabase();
+        try{
+            $query = "SELECT * FROM user_comment WHERE Item_Id = $Item_Id";
+            $connection = self::$database->GetConnection();
+            $stmt = $connection->prepare($query);
+            $stmt->execute();
+
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return $result;
+        }catch(PDOException $exception){
+			echo "Query Failed: ".$exception->getMessage();
+		}
     }
 
     

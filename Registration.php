@@ -10,6 +10,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fashion App</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <style>
+        body{
+            background-image: url("images/backGround/bgimg.png"); /*lace image*/
+        }
+    </style>
 </head>
 <body>
     <?php 
@@ -39,7 +45,7 @@
     
     </div>
     <div class="container d-flex justify-content-center">
-        <div style="width: 28rem; 15px; ">
+     <div style="width: 28rem; padding: 15px; background-color:rgb(247, 247, 247); border-radius: 15px;">
 
             <div class="card-body">
                 <h2 class="card-title text-center mb-4">Register</h2>
@@ -54,7 +60,7 @@
                         <input type='password' class='form-control' placeholder="Enter password" name="password" required>
                     </div>
                     <div class="d-grid mt-4">
-                            <button type="submit" name="submit" class="btn btn-secondary">Register</button>
+                            <button type="submit" name="submit" class="btn btn-dark">Register</button>
                     </div>
                 </form>
             </div>

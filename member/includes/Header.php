@@ -13,4 +13,6 @@
 	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/pretty-checkbox@3.0/dist/pretty-checkbox.min.css" />
 
 	<title>Fashion Hive</title>
+	
+
 </head>
