@@ -11,7 +11,7 @@ this project was made for a php class final project, to show and test my php ski
 
 
 
-# take a loook
+# take a look
 <img width="1905" height="918" alt="Screenshot 2025-10-01 162547" src="https://github.com/user-attachments/assets/92673d7d-484e-416d-8971-e397640eb3e2" />
 <img width="1895" height="869" alt="Screenshot 2025-11-24 141559" src="https://github.com/user-attachments/assets/51de3f72-31cc-4dac-b51a-21027eb91846" />
 <img width="1899" height="909" alt="Screenshot 2025-10-01 162604" src="https://github.com/user-attachments/assets/2def9938-f27f-44aa-a2d5-a595377f012f" />
