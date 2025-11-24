@@ -1,6 +1,6 @@
 ## Fashion hive
 
-## A fashion app written with php, where users can see others wodrobe and post thier own, save and like to get inspperation for future peices they migth want to get.
+## A fashion website written with php, where users can see others wodrobe and post thier own, save and like to get inspperation for future peices they migth want to get.
 
 this project was made for a php class final project, to show and test my php skills and what we learnt during the class:
 
