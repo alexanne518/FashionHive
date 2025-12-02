@@ -1,4 +1,4 @@
-## Fashion hive
+## Fashion Hive
 
 ## A fashion website written with php, where users can see others wodrobe and post thier own, save and like to get inspperation for future peices they migth want to get.
 
